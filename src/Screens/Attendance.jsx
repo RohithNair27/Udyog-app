@@ -7,6 +7,8 @@ import {
   Alert,
   ActivityIndicator,
   StatusBar,
+  Touchable,
+  TouchableOpacity,
 } from 'react-native';
 import React, {useEffect, useState, useContext, useRef} from 'react';
 import Button from '../components/Button';
@@ -15,13 +17,16 @@ import {request, RESULTS, PERMISSIONS} from 'react-native-permissions';
 import GetCurrentDay from '../utils/TimeUtils';
 import {storeData, getData} from '../utils/Storage';
 import {uploadDataFireBase} from '../utils/Firebase';
-import Modal from 'react-native-modal';
 import InputBox from '../components/InputBox';
 import {DataContext} from '../context/DataContext/DataContext';
+import AppStatusContext from '../context/AppStatusContext/AppStatusContext';
 import MaleProfile from '../assets/Images/MaleProfile.svg';
+import Icon from 'react-native-vector-icons/AntDesign';
+
 const Attendance = ({navigation}) => {
   const {userId, setUserId} = useContext(DataContext);
-
+  const {changeNetworkStatus, changeLoadingStatus, loading, networkStatus} =
+    useContext(AppStatusContext);
   const inInitialRender = useRef(true);
   const [checkPressed, setCheckPressed] = useState(false);
   const [newtworkState, setnewtworkState] = useState(true);
@@ -195,7 +200,6 @@ const Attendance = ({navigation}) => {
   }, [checkPressed]);
 
   useEffect(() => {
-    console.log(userId);
     inInitialRender.current = false;
   }, []);
 
@@ -204,12 +208,10 @@ const Attendance = ({navigation}) => {
       storeInAsync();
     }
   }, [newtworkState]);
-
-  useState;
   return (
     <View style={styles.Body}>
       <StatusBar backgroundColor={'#FFC834'} />
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Modal
           isVisible={waitingForUpload}
           animationIn={'fadeIn'}
@@ -219,51 +221,59 @@ const Attendance = ({navigation}) => {
             <ActivityIndicator size={60} />
           </View>
         </Modal>
-      </View>
+      </View> */}
       <View style={styles.ImageBody}>
+        <View style={styles.ImageBodyContainer}>
+          <Text style={styles.ImageBodyHeaderText}>मेहनत से सफलता।</Text>
+          <Text style={styles.workersDataInfoText}>Check today's updates</Text>
+        </View>
+
         {profilePictureUri === false ? (
-          <MaleProfile />
+          <View style={styles.workersDataContainer}>
+            <View style={styles.workersData}>
+              <Text style={styles.workersDataHeaderText}>0</Text>
+              <Text style={styles.workersDataInfoText}>People working</Text>
+            </View>
+          </View>
         ) : (
-          <Image
-            source={{uri: profilePictureUri}}
-            resizeMode="contain"
-            style={styles.image}
-          />
+          <MaleProfile />
         )}
       </View>
-      <View style={styles.mobileInputbody}>
+      <View style={styles.buttonContainer}>
+        <Text style={styles.workersDataInfoText}>Today, Dec 28</Text>
         <InputBox
-          placeHolder={'employee Id'}
+          placeHolder={'Enter your employee id'}
           value={EmployeeId}
           onValueChange={handleValueChange}
           keyBoardType={'tel'}
           maxLength={6}
+          width={'80%'}
+          height={'15%'}
+          backGroundColor={'#f4f4f4'}
+          paddingLeft={20}
         />
-      </View>
-      <View style={styles.button}>
-        <Button
-          placeHolder="Take Image"
-          backGroundColor={'#007afe'}
-          onPress={getMobilePermission}
-          ImageProps="camera"
-        />
-      </View>
-      <ActivityIndicator size={30} animating={waitingForUpload} />
-      <View style={styles.checkButtonBody}>
-        <View style={styles.checkButton}>
+        <TouchableOpacity
+          style={styles.pictureButton}
+          onPress={getMobilePermission}>
+          <Icon name="camera" size={30} color="#fff" />
+        </TouchableOpacity>
+        <View style={styles.checkInButtonContainer}>
           <Button
             placeHolder="Check In"
-            backGroundColor={'#d95e54'}
+            backGroundColor={'#7C0A02'}
             onPress={onClickCheckIn}
-            ImageProps="login"
+            // ImageProps="login"
+            width={'45%'}
+            height={'100%'}
           />
-        </View>
-        <View style={styles.checkButton}>
+
           <Button
             placeHolder="Check Out"
-            backGroundColor={'#d95e54'}
+            backGroundColor={'#7C0A02'}
             onPress={onClickCheckOut}
-            ImageProps="logout"
+            // ImageProps="logout"
+            width={'45%'}
+            height={'100%'}
           />
         </View>
       </View>
@@ -278,57 +288,33 @@ const styles = StyleSheet.create({
   Body: {
     backgroundColor: 'white',
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  header: {
-    width: '80%',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-  },
-  image: {
-    height: 150,
-    width: 150,
-    alignItems: 'center',
-    borderRadius: 100,
-    justifyContent: 'center',
+    // justifyContent: 'center',
   },
   ImageBody: {
-    height: '40%',
-    width: '85%',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    height: '45%',
+    width: '100%',
+    backgroundColor: '#FFC834',
+    borderBottomRightRadius: 50,
+    borderBottomLeftRadius: 50,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  mobileInputbody: {
-    backgroundColor: '#f1f1f3',
-    marginVertical: 10,
-    borderRadius: 20,
-    width: '90%',
-    height: '8%',
-    paddingLeft: 10,
+  ImageBodyContainer: {
+    alignSelf: 'flex-start',
+    paddingLeft: 20,
   },
-  checkButtonBody: {
-    marginTop: '10%',
-    width: '80%',
-    height: '20%',
+  ImageBodyHeaderText: {
+    color: '#000',
+    fontSize: 30,
+    fontWeight: '600',
   },
-  checkButton: {
-    height: '40%',
-    marginVertical: '2%',
-  },
-  button: {
-    height: '7%',
-    width: '50%',
-    marginTop: 10,
-  },
+
   headerText: {
     color: 'black',
     fontSize: 23,
     fontWeight: '900',
   },
   checkInContainer: {
-    borderWidth: 2,
     height: '30%',
     width: '85%',
     borderRadius: 20,
@@ -336,57 +322,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-evenly',
   },
-  attendanceHistory: {
-    marginTop: 20,
-    height: '50%',
-    width: '100%',
-
+  workersDataContainer: {
+    width: '80%',
+    height: '70%',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  buttonContainer: {
-    width: '100%',
-    height: '100%',
+  workersData: {
+    borderWidth: 3,
+    borderColor: 'white',
+    width: 170,
+    height: 170,
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  todayText: {
-    color: '#05aaf7',
-    fontSize: 25,
+  workersDataHeaderText: {
+    color: '#000',
+    fontSize: 40,
     fontWeight: '600',
   },
-  timeText: {
-    color: 'black',
-    fontSize: 45,
-    fontWeight: '800',
+  workersDataInfoText: {
+    color: '#000',
+    // fontSize: 40,
+    // fontWeight: '600',
   },
-  timeTrackedText: {
-    color: 'gray',
-  },
-  listHeader: {
-    // borderWidth: 1,
-    justifyContent: 'space-evenly',
+  buttonContainer: {
+    flex: 1,
     alignItems: 'center',
-    flexDirection: 'row',
-    height: HEIGHT * 0.09,
-    backgroundColor: '#05aaf7',
-    width: '100%',
+    justifyContent: 'space-around',
   },
-  listHeaderDate: {
-    color: 'white',
-    fontWeight: '800',
-    // fontSize: 14,
-  },
-  dailyInfoContainer: {
-    borderBottomWidth: 1,
-    borderColor: 'lightgray',
-
-    width: '100%',
-    height: HEIGHT * 0.07,
-  },
-  waitingModalStyle: {
-    width: WIDTH * 0.5,
-    backgroundColor: 'white',
-    height: HEIGHT * 0.3,
-    alignSelf: 'center',
+  pictureButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 100,
+    backgroundColor: '#FFC834',
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
+  },
+  checkInButtonContainer: {
+    // borderWidth: 1,
+    justifyContent: 'space-between',
+    width: '80%',
+    flexDirection: 'row',
+    alignSelf: 'center',
+    height: '15%',
   },
 });

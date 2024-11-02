@@ -2,11 +2,13 @@ import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import FarmerWomen from '../assets/Images/Farmer_lady_nobg.svg';
 import Button from '../components/Button';
+import {displayName} from '../../app.json';
+
 const LandingPage = ({navigation}) => {
   return (
     <View style={styles.loginBody}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerMainText}>ImageLog</Text>
+        <Text style={styles.headerMainText}>{displayName}</Text>
         <Text style={styles.headerMoreInfoText}>
           Helps workers track their hours accurately for fair wages
         </Text>

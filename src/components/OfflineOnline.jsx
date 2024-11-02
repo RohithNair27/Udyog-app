@@ -1,25 +1,60 @@
-import {StyleSheet, Text, View, Switch} from 'react-native';
-import React, {useState} from 'react';
-
+import {StyleSheet, Text, View, Animated, useAnimatedValue} from 'react-native';
+import React, {useEffect, useContext} from 'react';
+import AppStatusContext from '../context/AppStatusContext/AppStatusContext';
 const OfflineOnline = () => {
-  const [state, setState] = useState(true);
+  const heartBeatAnimation = useAnimatedValue(1);
+  const {changeNetworkStatus, networkStatus} = useContext(AppStatusContext);
+  useEffect(() => {
+    const startPulse = () => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(heartBeatAnimation, {
+            toValue: 1.3,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(heartBeatAnimation, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ]),
+      ).start();
+    };
+
+    startPulse();
+  }, [heartBeatAnimation]);
   return (
     <View style={styles.body}>
-      <Switch
-        // trackColor={{false: '#767577', true: '#81b0ff'}}
-        // thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
-        // onValueChange={toggleSwitch}
-        // value={isEnabled}
-        style={{marginRight: 10}} // Adjusts position of the Switch
-      />
       <View style={styles.indicatorContainer}>
-        <View
+        <Animated.View
+          style={[
+            {
+              ...styles.stateIndicatorContainer,
+              backgroundColor: networkStatus
+                ? 'rgba(60, 179, 113, 0.3)'
+                : 'rgba(255, 0, 0, 0.3)',
+            },
+            {
+              transform: [
+                {scaleX: heartBeatAnimation},
+                {scaleY: heartBeatAnimation},
+              ],
+            },
+          ]}>
+          <View
+            style={{
+              ...styles.stateIndicator,
+              backgroundColor: networkStatus ? '#3CB371' : 'red',
+            }}></View>
+        </Animated.View>
+        <Text
           style={{
-            ...styles.stateIndicator,
-            backgroundColor: state ? 'green' : 'red',
-          }}></View>
-        <Text style={{...styles.stateText, color: state ? 'green' : 'red'}}>
-          {state ? 'online' : 'offline'}
+            ...styles.stateText,
+            color: networkStatus ? '#3CB371' : 'red',
+            marginLeft: 5,
+          }}>
+          {networkStatus ? 'Online' : 'offline'}
         </Text>
       </View>
     </View>
@@ -31,12 +66,13 @@ export default OfflineOnline;
 const styles = StyleSheet.create({
   body: {
     // borderWidth: 1,
-    width: '50%',
+    alignSelf: 'flex-end',
+    marginRight: 20,
     flexDirection: 'row',
   },
   stateIndicator: {
-    width: 15,
-    height: 15,
+    width: 10,
+    height: 10,
     borderRadius: 50,
     backgroundColor: 'red',
   },
@@ -48,8 +84,15 @@ const styles = StyleSheet.create({
   indicatorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  stateIndicatorContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 20,
+    height: 20,
+    borderRadius: 50,
     // borderWidth: 1,
-    width: '40%',
-    justifyContent: 'space-between',
+    backgroundColor: 'rgba(60, 179, 113, 0.4)',
   },
 });
