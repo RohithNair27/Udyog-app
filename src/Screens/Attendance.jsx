@@ -2,12 +2,9 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
   Dimensions,
   Alert,
-  ActivityIndicator,
   StatusBar,
-  Touchable,
   TouchableOpacity,
 } from 'react-native';
 import React, {useEffect, useState, useContext, useRef} from 'react';
@@ -15,21 +12,20 @@ import Button from '../components/Button';
 import {launchCamera} from 'react-native-image-picker';
 import {request, RESULTS, PERMISSIONS} from 'react-native-permissions';
 import GetCurrentDay from '../utils/TimeUtils';
-import {storeData, getData} from '../utils/Storage';
+import {storeDataInAsync, getData} from '../utils/Storage';
 import {uploadDataFireBase} from '../utils/Firebase';
 import InputBox from '../components/InputBox';
 import {DataContext} from '../context/DataContext/DataContext';
 import AppStatusContext from '../context/AppStatusContext/AppStatusContext';
 import MaleProfile from '../assets/Images/MaleProfile.svg';
 import Icon from 'react-native-vector-icons/AntDesign';
-
+import {LocalStorageMessages} from '../Constants/LocalStorageConstants';
 const Attendance = ({navigation}) => {
-  const {userId, setUserId} = useContext(DataContext);
+  const {updateFarmHandList, farmHandDataList} = useContext(DataContext);
   const {changeNetworkStatus, changeLoadingStatus, loading, networkStatus} =
     useContext(AppStatusContext);
   const inInitialRender = useRef(true);
   const [checkPressed, setCheckPressed] = useState(false);
-  const [newtworkState, setnewtworkState] = useState(true);
   const [waitingForUpload, setWaitingForUpload] = useState(false);
   const [Data, setData] = useState({
     LoginStatus: '',
@@ -48,7 +44,7 @@ const Attendance = ({navigation}) => {
 
   const changeNetworkMode = () => {
     console.log('pressed');
-    setnewtworkState(!newtworkState);
+    // setnewtworkState(!newtworkState);
   };
 
   const handleValueChange = (key, changed) => {
@@ -91,9 +87,7 @@ const Attendance = ({navigation}) => {
         console.log('Image picker error: ', response.error);
       } else {
         let imageUri = response.assets?.[0]?.uri;
-        // let base64 = response.assets?.[0]?.base64;
         setProfilePictureUri(imageUri);
-        // setImageBase64(base64);
       }
     });
   };
@@ -127,7 +121,6 @@ const Attendance = ({navigation}) => {
       EmployeeIdEntered: EmployeeId,
       month: GetCurrentDay().month,
       year: GetCurrentDay().year,
-      // image: imageBase64,
     });
     setCheckPressed(!checkPressed);
   };
@@ -152,8 +145,11 @@ const Attendance = ({navigation}) => {
     navigation.navigate('PictureView', {uri});
   };
 
+  //Stores the data in local storage
   const storeInAsync = async () => {
-    const reply = await storeData(Data);
+    const localStorageMessage = await storeDataInAsync(Data);
+
+    // setting the local Data state to intial
     setData({
       LoginStatus: '',
       EmployeeIdEntered: '',
@@ -161,43 +157,45 @@ const Attendance = ({navigation}) => {
       Day: '',
       ImageUrl: '',
       Time: null,
-      // image: '',
       month: '',
       year: '',
     });
     setProfilePictureUri(false);
     setEmployeeID('');
-    if (
-      newtworkState === true &&
-      reply !== 'Already checked out for the day ' &&
-      reply !== 'Login completed for today'
-    ) {
-      SendDataToFirebase();
-    } else {
-      if (
-        newtworkState === false &&
-        reply !== 'Already checked out for the day ' &&
-        reply !== 'Login completed for today'
-      ) {
-        Alerts(
-          'Info',
-          'Switched to offline mode Please switch it back on to get the data stored',
-        );
-      } else {
-        Alerts('Error', reply);
-      }
-    }
+    // if (localStorageMessage === LocalStorageMessages.success.CHECK_IN) {
+
+    // }
+    // else (localStorageMessage === LocalStorageMessages.error.CHECK_IN_ALREADY_COMPLETED){
+
+    // }
+    // if (
+    //   reply !== 'Already checked out for the day ' &&
+    //   reply !== LocalStorageMessages.error.CHECK_IN_ALREADY_COMPLETED
+    // ) {
+    // } else {
+    //   if (
+    //     reply !== 'Already checked out for the day ' &&
+    //     reply !== LocalStorageMessages.error.CHECK_IN_ALREADY_COMPLETED
+    //   ) {
+    //     Alerts(
+    //       'Info',
+    //       'Switched to offline mode Please switch it back on to get the data stored',
+    //     );
+    //   } else {
+    //     Alerts('Error', reply);
+    //   }
+    // }
   };
 
-  useEffect(() => {
-    if (!inInitialRender.current) {
-      if (Data.ImageUrl === ('' || false) || Data.EmployeeIdEntered === '') {
-        Alerts('Incomplete!', 'Please Add Image and EmployeeId');
-      } else {
-        storeInAsync();
-      }
-    }
-  }, [checkPressed]);
+  // useEffect(() => {
+  //   if (!inInitialRender.current) {
+  //     if (Data.ImageUrl === ('' || false) || Data.EmployeeIdEntered === '') {
+  //       Alerts('Incomplete!', 'Please Add Image and EmployeeId');
+  //     } else {
+  //       storeInAsync();
+  //     }
+  //   }
+  // }, [checkPressed]);
 
   useEffect(() => {
     inInitialRender.current = false;
@@ -207,7 +205,7 @@ const Attendance = ({navigation}) => {
     if (!inInitialRender.current) {
       storeInAsync();
     }
-  }, [newtworkState]);
+  }, []);
   return (
     <View style={styles.Body}>
       <StatusBar backgroundColor={'#FFC834'} />

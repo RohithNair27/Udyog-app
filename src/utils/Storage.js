@@ -1,23 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export const storeData = async data => {
+import {LocalStorageMessages} from '../Constants/LocalStorageConstants';
+export const storeDataInAsync = async data => {
   let new_key = data.EmployeeIdEntered;
   const stringKey = JSON.stringify(new_key);
   const value = await AsyncStorage.getItem(stringKey);
-
   try {
     if (data.LoginStatus === 'check In') {
       if (value === null) {
-        const newData = {
+        let newData = {
           [new_key]: {
             CheckIn: data,
           },
         };
         const stringData = JSON.stringify(newData);
         await AsyncStorage.setItem(stringKey, stringData);
-        console.log('stored in async');
+        return LocalStorageMessages.success.CHECK_IN;
       } else {
-        return 'Login completed for today';
+        return LocalStorageMessages.error.CHECK_IN_ALREADY_COMPLETED;
       }
     } else {
       if (value === null) {

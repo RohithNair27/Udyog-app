@@ -4,17 +4,9 @@ import DataContextProvider from './src/context/DataContext/DataContextProvider';
 import StackNavigation from './src/Navigation/StackNavigation';
 import {NavigationContainer} from '@react-navigation/native';
 import AppContextProvider from './src/context/AppStatusContext/AppContextProvider';
+import AppProvider from './src/context/AppProvider';
 const App = () => {
-  return (
-    <AppContextProvider>
-      <DataContextProvider>
-        <NavigationContainer>
-          <StatusBar backgroundColor={'white'} />
-          <StackNavigation />
-        </NavigationContainer>
-      </DataContextProvider>
-    </AppContextProvider>
-  );
+  return <AppProvider />;
 };
 
 export default App;

@@ -8,7 +8,7 @@ const LandingPage = ({navigation}) => {
   return (
     <View style={styles.loginBody}>
       <View style={styles.headerContainer}>
-        <Text style={styles.headerMainText}>{displayName}</Text>
+        <Text style={styles.headerMainText}>उद्योग</Text>
         <Text style={styles.headerMoreInfoText}>
           Helps workers track their hours accurately for fair wages
         </Text>
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   },
   headerMainText: {
     color: 'black',
-    fontSize: 50,
+    fontSize: 80,
     fontWeight: '500',
   },
   headerMoreInfoText: {

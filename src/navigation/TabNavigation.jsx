@@ -11,7 +11,6 @@ const TabNavigator = () => {
 
   return (
     <Tab.Navigator
-      tabBarOptions={{showLabel: false}}
       screenOptions={{
         tabBarStyle: {
           backgroundColor: '#FFC834',
